@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { AdminPanel } from '@/components/AdminPanel';
 
 interface Anime {
   id: number;
@@ -21,24 +22,17 @@ interface Anime {
   genre: string;
   episodes: number;
   voices: number;
+  description?: string;
+  featured?: boolean;
 }
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('all');
   const [selectedYear, setSelectedYear] = useState('all');
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
-  const featuredAnime = {
-    title: 'Demon Slayer: Kimetsu no Yaiba',
-    description: 'Юный Танджиро становится охотником на демонов после трагедии, постигшей его семью. Теперь его целью стала месть и поиск способа вернуть человечность своей сестре.',
-    image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/d7c714be-3771-4259-a78d-43410df9b48b.jpg',
-    rating: 9.2,
-    year: 2024,
-    episodes: 26,
-    voices: 5
-  };
-
-  const popularAnime: Anime[] = [
+  const initialPopular: Anime[] = [
     { id: 1, title: 'Атака Титанов', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 9.1, year: 2023, genre: 'Экшн', episodes: 24, voices: 8 },
     { id: 2, title: 'Магическая битва', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.9, year: 2024, genre: 'Сёнэн', episodes: 24, voices: 6 },
     { id: 3, title: 'Моя геройская академия', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.7, year: 2024, genre: 'Экшн', episodes: 25, voices: 7 },
@@ -47,7 +41,7 @@ const Index = () => {
     { id: 6, title: 'Ван Пис', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 9.3, year: 2024, genre: 'Приключения', episodes: 1000, voices: 12 },
   ];
 
-  const newReleases: Anime[] = [
+  const initialNew: Anime[] = [
     { id: 7, title: 'Блич: Тысячелетняя кровавая война', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 9.0, year: 2024, genre: 'Экшн', episodes: 13, voices: 4 },
     { id: 8, title: 'Кагуя-сама: В любви как на войне', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.8, year: 2024, genre: 'Романтика', episodes: 12, voices: 3 },
     { id: 9, title: 'Стальной алхимик', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 9.2, year: 2024, genre: 'Фэнтези', episodes: 64, voices: 9 },
@@ -56,7 +50,7 @@ const Index = () => {
     { id: 12, title: 'Стальная тревога', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.6, year: 2024, genre: 'Меха', episodes: 24, voices: 5 },
   ];
 
-  const uniqueVoices: Anime[] = [
+  const initialVoices: Anime[] = [
     { id: 13, title: 'Клинок, рассекающий демонов', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 9.1, year: 2023, genre: 'Экшн', episodes: 26, voices: 15 },
     { id: 14, title: 'Обещанный Неверленд', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.7, year: 2023, genre: 'Триллер', episodes: 12, voices: 8 },
     { id: 15, title: 'Моб Психо 100', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.9, year: 2024, genre: 'Комедия', episodes: 25, voices: 10 },
@@ -64,6 +58,35 @@ const Index = () => {
     { id: 17, title: 'Класс убийц', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 8.8, year: 2023, genre: 'Экшн', episodes: 47, voices: 9 },
     { id: 18, title: 'Тетрадь смерти', image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/ad62232c-c374-44e8-8589-84d5bfe9cae3.jpg', rating: 9.2, year: 2023, genre: 'Триллер', episodes: 37, voices: 14 },
   ];
+
+  const [popularAnime, setPopularAnime] = useState<Anime[]>(initialPopular);
+  const [newReleases, setNewReleases] = useState<Anime[]>(initialNew);
+  const [uniqueVoices, setUniqueVoices] = useState<Anime[]>(initialVoices);
+  const [featuredAnime, setFeaturedAnime] = useState({
+    title: 'Demon Slayer: Kimetsu no Yaiba',
+    description: 'Юный Танджиро становится охотником на демонов после трагедии, постигшей его семью. Теперь его целью стала месть и поиск способа вернуть человечность своей сестре.',
+    image: 'https://cdn.poehali.dev/projects/3d8133c4-3bb1-4a71-b856-a5e46151bd2c/files/d7c714be-3771-4259-a78d-43410df9b48b.jpg',
+    rating: 9.2,
+    year: 2024,
+    episodes: 26,
+    voices: 5
+  });
+
+  const handleAddAnime = (newAnime: Anime) => {
+    if (newAnime.featured) {
+      setFeaturedAnime({
+        title: newAnime.title,
+        description: newAnime.description || '',
+        image: newAnime.image,
+        rating: newAnime.rating,
+        year: newAnime.year,
+        episodes: newAnime.episodes,
+        voices: newAnime.voices
+      });
+    }
+    
+    setPopularAnime(prev => [...prev, newAnime]);
+  };
 
   const allAnime = [...popularAnime, ...newReleases, ...uniqueVoices];
 
@@ -132,6 +155,15 @@ const Index = () => {
               <a href="#" className="hover:text-primary transition-colors">Ачивки</a>
             </nav>
             <div className="flex items-center gap-3">
+              {isAdminMode && <AdminPanel onAddAnime={handleAddAnime} />}
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setIsAdminMode(!isAdminMode)}
+                className={isAdminMode ? 'text-primary' : ''}
+              >
+                <Icon name="Settings" size={20} />
+              </Button>
               <Button variant="ghost" size="icon">
                 <Icon name="Search" size={20} />
               </Button>
